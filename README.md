@@ -10,7 +10,7 @@
 |-------|----------|
 | Workstation bootstrap (brew + apt tools) | A RAG engine |
 | Skill distribution (Claude / Cursor / Codex / Gemini) | A self-learning system |
-| MCP server collection (14 submodules) | A memory store |
+| MCP server collection (15 submodules) | A memory store |
 | AI CLI bootstrap (claude, gemini, codex) | A voice-learning pipeline |
 | Cross-platform setup (macOS + Linux) | A replacement for `brain` |
 
@@ -24,7 +24,7 @@
 ```
 superai-skills/
 ├── skills/          # 35+ agent skills → symlinked into Claude/Cursor/Codex/Gemini
-├── packages/        # 14 MCP server submodules
+├── packages/        # 15 MCP server submodules
 │   ├── linkedin-mcp      LinkedIn MCP server & CLI (Voyager API + CDP Chrome)
 │   ├── imail-mcp         macOS Mail.app CLI + MCP server
 │   ├── whatsapp-mcp      WhatsApp Web MCP server
@@ -33,6 +33,7 @@ superai-skills/
 │   ├── inotes-mcp        macOS Apple Notes CLI + MCP server
 │   ├── vercel-mcp        Multi-account Vercel CLI + MCP server
 │   ├── railway-mcp       Railway Cloud CLI + MCP server
+│   ├── google-voice-mcp  Google Voice CLI + MCP server
 │   ├── own-chrome        Headless/headful Chrome CDP controller
 │   ├── humanizer         Prose humanization & AI-writing filter
 │   ├── claude-tiers      Model-tiered Claude Code delegation ruleset
@@ -93,7 +94,7 @@ Skills are also on [skills.sh](https://skills.sh/ml-lubich/superai-skills): `npx
 | `superai-skills setup-dev` | Full workstation bootstrap (brew/apt tools + Python + AI CLIs) |
 | `superai-skills doctor` | Health check — all tools, CLIs, and skill links |
 | `superai-skills list-skills` | List all 35+ available agent skills |
-| `superai-skills list-mcp` | List all 14 MCP server submodules |
+| `superai-skills list-mcp` | List all 15 MCP server submodules |
 | `superai-skills install-skills --target all` | Symlink skills into Claude, Cursor, Codex, and Gemini |
 
 ---
