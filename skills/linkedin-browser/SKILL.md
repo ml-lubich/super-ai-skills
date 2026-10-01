@@ -103,3 +103,7 @@ don't share`).
 
 Sending stays a separate explicit step (`--confirm` / `confirm: true`), and
 only after the user names the recipient and the message in the current turn.
+
+## Epilogue
+
+`li` and `linkedin` are the same binary: an editable install of `~/dev/linkedin-mcp`. `scan` and `messages open|threads|select|send --to` navigate the open LinkedIn tab, then poll that tab's websocket until the thread list renders (up to 8 seconds). Chrome's tab list still shows the previous URL right after navigation. That is expected. Do not treat `No open tab URL contains 'https://www.linkedin.com/messaging/'` as a closed inbox, and do not match that exact URL in the tab list. If the poll never sees the thread list, stop instead of reading the feed. The guard is `tests/test_cli_messaging_url_race.py`.

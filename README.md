@@ -72,6 +72,9 @@ bun add -g @openai/codex
 # 7. Link all skills into your AI clients
 superai-skills install-skills --target all
 
+# Or install the same skills from the public directory
+npx skills add ml-lubich/superai-skills
+
 # 8. Health check
 superai-skills doctor
 ```
@@ -80,6 +83,8 @@ For fully autonomous agent-driven setup, paste the prompt from:
 👉 [`prompts/AGENT_SETUP_PROMPT.md`](prompts/AGENT_SETUP_PROMPT.md)
 
 ---
+
+Skills are also on [skills.sh](https://skills.sh/ml-lubich/superai-skills): `npx skills add ml-lubich/superai-skills`.
 
 ## CLI Reference
 
