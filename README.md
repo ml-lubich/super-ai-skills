@@ -1,58 +1,117 @@
 # superai-skills
 
-The unified agent engineering hub and meta-repository integrating Misha's personal agent skills, MCP servers, and automation tools as submodules and modular skills.
+> **The single command that sets up a full AI-powered developer workstation** — skills, MCP servers, AI CLIs, and runtime tools for any collaborator.
+
+---
+
+## What this IS / What this IS NOT
+
+| ✅ IS | ❌ IS NOT |
+|-------|----------|
+| Workstation bootstrap (brew + apt tools) | A RAG engine |
+| Skill distribution (Claude / Cursor / Codex / Gemini) | A self-learning system |
+| MCP server collection (14 submodules) | A memory store |
+| AI CLI bootstrap (claude, gemini, codex) | A voice-learning pipeline |
+| Cross-platform setup (macOS + Linux) | A replacement for `brain` |
+
+**RAG / voice memory lives in the [`brain` repo](https://github.com/ml-lubich/brain-knowledge).**
+`superai-skills` handles setup and skill distribution only — it does not learn on its own.
+
+---
 
 ## Architecture
 
-- `skills/`: Comprehensive agent skills compatible with Claude Code, Cursor, Codex, and Gemini/Antigravity.
-- `packages/`: Git submodules of core MCP tools and standalone repositories:
-  - `packages/linkedin-mcp`: LinkedIn MCP server & CLI (Voyager API + CDP Chrome automation)
-  - `packages/imail-mcp`: macOS Mail.app CLI + MCP server
-  - `packages/whatsapp-mcp`: WhatsApp Web MCP server
-  - `packages/imsg-mcp`: macOS iMessage MCP server
-  - `packages/jenkins-mcp`: Jenkins CLI + MCP server
-  - `packages/inotes-mcp`: macOS Apple Notes CLI + MCP server
-  - `packages/vercel-mcp`: Multi-account Vercel CLI + MCP server
-  - `packages/railway-mcp`: Railway Cloud CLI + MCP server
-  - `packages/own-chrome`: Headless/headful Chrome CDP controller for agents
-  - `packages/humanizer`: Prose humanization and AI-writing filter
-  - `packages/claude-tiers`: Model-tiered Claude Code delegation ruleset
-  - `packages/callgen`: Audio/call transcript analyzer & visualization generator
-  - `packages/bitbucket-cli`: Minimal Bitbucket Data Center/Cloud CLI (`bb`)
-  - `packages/like-fable`: Agent behavior & collaboration prompt library
-- `prompts/`: Agent-friendly setup prompts and instructions for headless or autonomous setup.
-
-## Quickstart & Dev Setup (macOS / Linux)
-
-Pure Python OOP setup without shell scripts:
-
-```bash
-git clone --recurse-submodules https://github.com/ml-lubich/superai-skills.git
-cd superai-skills
-
-# Install via pip or uv
-pip install -e .
-
-# Run the Python-native environment bootstrap
-superai-skills setup-dev
+```
+superai-skills/
+├── skills/          # 35+ agent skills → symlinked into Claude/Cursor/Codex/Gemini
+├── packages/        # 14 MCP server submodules
+│   ├── linkedin-mcp      LinkedIn MCP server & CLI (Voyager API + CDP Chrome)
+│   ├── imail-mcp         macOS Mail.app CLI + MCP server
+│   ├── whatsapp-mcp      WhatsApp Web MCP server
+│   ├── imsg-mcp          macOS iMessage MCP server
+│   ├── jenkins-mcp       Jenkins CLI + MCP server
+│   ├── inotes-mcp        macOS Apple Notes CLI + MCP server
+│   ├── vercel-mcp        Multi-account Vercel CLI + MCP server
+│   ├── railway-mcp       Railway Cloud CLI + MCP server
+│   ├── own-chrome        Headless/headful Chrome CDP controller
+│   ├── humanizer         Prose humanization & AI-writing filter
+│   ├── claude-tiers      Model-tiered Claude Code delegation ruleset
+│   ├── callgen           Audio/call transcript analyzer & visualizer
+│   ├── bitbucket-cli     Minimal Bitbucket Data Center/Cloud CLI (`bb`)
+│   └── like-fable        Agent behavior & collaboration prompt library
+├── prompts/         # Agent-friendly setup prompts (headless / autonomous)
+└── super_ai_skills/ # Python CLI source
 ```
 
-## Agent Onboarding Prompt
+---
 
-For autonomous coding agents (Claude Code, Cursor Agent, Codex, Gemini/Antigravity), paste the onboarding prompt from:
-👉 [`prompts/AGENT_SETUP_PROMPT.md`](file:///Users/mlubich/dev/superai-skills/prompts/AGENT_SETUP_PROMPT.md)
+## Quickstart — New Collaborator Setup
 
-## CLI Usage
+```bash
+# 1. Clone with submodules
+git clone --recurse-submodules https://github.com/ml-lubich/superai-skills.git ~/dev/superai-skills
+cd ~/dev/superai-skills
 
-- `superai-skills doctor`: Environment diagnostic and health check
-- `superai-skills list-skills`: List all 35+ available agent skills
-- `superai-skills list-mcp`: List all 14 MCP server submodules
-- `superai-skills install-skills --target all`: Link skills into Claude, Cursor, Codex, and Gemini
-- `superai-skills setup-dev`: Re-run full system dev bootstrap
+# 2. Install uv (fast Python package manager)
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-> **Note:** Voice learning / stylistic RAG belongs in individual skill repos (e.g. `humanizer`, `linkedin-outreach`), not in this meta-repo. `superai-skills` is just a collection — it does not learn on its own.
+# 3. Install Python 3.13
+uv python install 3.13
+
+# 4. Install the CLI
+uv tool install --editable .
+
+# 5. Bootstrap the full workstation
+superai-skills setup-dev
+
+# 6. Install AI CLIs
+bun add -g @anthropic-ai/claude-code
+bun add -g @google-deepmind/gemini-cli
+bun add -g @openai/codex
+
+# 7. Link all skills into your AI clients
+superai-skills install-skills --target all
+
+# 8. Health check
+superai-skills doctor
+```
+
+For fully autonomous agent-driven setup, paste the prompt from:
+👉 [`prompts/AGENT_SETUP_PROMPT.md`](prompts/AGENT_SETUP_PROMPT.md)
+
+---
+
+## CLI Reference
+
+| Command | Description |
+|---------|-------------|
+| `superai-skills setup-dev` | Full workstation bootstrap (brew/apt tools + Python + AI CLIs) |
+| `superai-skills doctor` | Health check — all tools, CLIs, and skill links |
+| `superai-skills list-skills` | List all 35+ available agent skills |
+| `superai-skills list-mcp` | List all 14 MCP server submodules |
+| `superai-skills install-skills --target all` | Symlink skills into Claude, Cursor, Codex, and Gemini |
+
+---
+
+## What `setup-dev` installs
+
+**macOS (Homebrew):**
+`gh` `git` `jq` `node` `bun` `ffmpeg` `ripgrep` `fd` `fzf` `bat` `zoxide` `starship` `tmux` `mise` `watchman`
+
+**Linux (apt/dnf/pacman):**
+`git` `curl` `jq` `build-essential` `python3-pip` `ripgrep` `fd-find` `fzf` `bat` `tmux` `watchman` + `bun` (via installer)
+
+**AI CLIs (bun/npm):**
+`claude` (`@anthropic-ai/claude-code`) · `gemini` (`@google-deepmind/gemini-cli`) · `codex` (`@openai/codex`)
+
+**uv tools:**
+`httpie` · `rich-cli`
+
+**Python:** 3.13 via `uv python install 3.13`
+
+---
 
 ## Collaborators
 
-- **Misha Lubich** (`@ml-lubich`) - Owner
-- **Joe** (`@java-heapler`) - Read / Write Collaborator
+- **Misha Lubich** (`@ml-lubich`) — Owner
+- **Joe** (`@java-heapler`) — Read / Write Collaborator
