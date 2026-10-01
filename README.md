@@ -1,4 +1,4 @@
-# super-ai-skills
+# superai-skills
 
 The unified agent engineering hub and meta-repository integrating Misha's personal agent skills, MCP servers, and automation tools as submodules and modular skills.
 
@@ -20,29 +20,35 @@ The unified agent engineering hub and meta-repository integrating Misha's person
   - `packages/callgen`: Audio/call transcript analyzer & visualization generator
   - `packages/bitbucket-cli`: Minimal Bitbucket Data Center/Cloud CLI (`bb`)
   - `packages/like-fable`: Agent behavior & collaboration prompt library
+- `prompts/`: Agent-friendly setup prompts and instructions for headless or autonomous setup.
 
 ## Quickstart & Dev Setup (macOS / Linux)
 
 Pure Python OOP setup without shell scripts:
 
 ```bash
-git clone --recurse-submodules https://github.com/ml-lubich/super-ai-skills.git
-cd super-ai-skills
+git clone --recurse-submodules https://github.com/ml-lubich/superai-skills.git
+cd superai-skills
 
 # Install via pip or uv
 pip install -e .
 
 # Run the Python-native environment bootstrap
-super-skills setup-dev
+superai-skills setup-dev
 ```
+
+## Agent Onboarding Prompt
+
+For autonomous coding agents (Claude Code, Cursor Agent, Codex, Gemini/Antigravity), paste the onboarding prompt from:
+👉 [`prompts/AGENT_SETUP_PROMPT.md`](file:///Users/mlubich/dev/superai-skills/prompts/AGENT_SETUP_PROMPT.md)
 
 ## CLI Usage
 
-- `super-skills doctor`: Environment diagnostic and health check
-- `super-skills list-skills`: List all 35+ available agent skills
-- `super-skills list-mcp`: List all 14 MCP server submodules
-- `super-skills install-skills --target all`: Link skills into Claude, Cursor, Codex, and Gemini
-- `super-skills setup-dev`: Re-run full system dev bootstrap
+- `superai-skills doctor`: Environment diagnostic and health check
+- `superai-skills list-skills`: List all 35+ available agent skills
+- `superai-skills list-mcp`: List all 14 MCP server submodules
+- `superai-skills install-skills --target all`: Link skills into Claude, Cursor, Codex, and Gemini
+- `superai-skills setup-dev`: Re-run full system dev bootstrap
 
 ## Collaborators
 
