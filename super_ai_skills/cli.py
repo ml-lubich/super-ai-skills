@@ -104,9 +104,43 @@ def doctor():
     console.print(f"[bold]Root Dir:[/bold] {ROOT_DIR}")
     skills_count = len(os.listdir(SKILLS_DIR)) if os.path.exists(SKILLS_DIR) else 0
     pkgs_count = len(os.listdir(PACKAGES_DIR)) if os.path.exists(PACKAGES_DIR) else 0
-    console.print(f"[bold]Skills Available:[/bold] {skills_count}")
-    console.print(f"[bold]MCP / Submodules:[/bold] {pkgs_count}")
-    console.print("[green]System status: HEALTHY[/green]")
+@cli.command("voice-learn")
+@click.argument("text")
+@click.option("--context", default="general", help="Context tag (e.g. outreach, reply, email)")
+def voice_learn(text, context):
+    """Learn authentic human tone, style, and sentence rhythm from a real sample."""
+    from super_ai_skills.voice import VoiceLearner
+    vl = VoiceLearner()
+    res = vl.learn_sample(text, context=context)
+    console.print(f"[bold green]✓ Ingested sample:[/bold green] {res['word_count']} words, avg sentence length: {res['avg_sentence_len']} words")
+
+@cli.command("voice-audit")
+@click.argument("draft")
+def voice_audit(draft):
+    """Audit a draft against AI fluff/buzzwords and check character budget."""
+    from super_ai_skills.voice import VoiceLearner
+    vl = VoiceLearner()
+    report = vl.audit_draft(draft)
+    color = "green" if report["clean"] else "yellow"
+    console.print(f"[{color}]Score: {report['score']}/100[/{color}] (Length: {report['char_count']} chars)")
+    if not report["clean"]:
+        console.print(f"[red]Flagged AI Fluff:[/red] {', '.join(report['flagged_ai_fluff'])}")
+    else:
+        console.print("[bold green]✓ Clean human voice — no AI tells detected.[/bold green]")
+
+@cli.command("voice-rag")
+@click.option("--limit", default=3, help="Number of few-shots to return")
+def voice_rag(limit):
+    """Retrieve learned few-shots for in-context RAG prompt grounding."""
+    from super_ai_skills.voice import VoiceLearner
+    vl = VoiceLearner()
+    shots = vl.get_grounding_few_shots(limit=limit)
+    if not shots:
+        console.print("[dim]No voice samples learned yet. Use 'superai-skills voice-learn <sample>'[/dim]")
+        return
+    console.print("[bold cyan]In-Context Grounding Few-Shots:[/bold cyan]")
+    for idx, s in enumerate(shots, 1):
+        console.print(f"[bold]{idx}.[/bold] \"{s}\"")
 
 def main():
     cli()

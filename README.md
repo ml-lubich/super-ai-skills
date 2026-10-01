@@ -49,6 +49,9 @@ For autonomous coding agents (Claude Code, Cursor Agent, Codex, Gemini/Antigravi
 - `superai-skills list-mcp`: List all 14 MCP server submodules
 - `superai-skills install-skills --target all`: Link skills into Claude, Cursor, Codex, and Gemini
 - `superai-skills setup-dev`: Re-run full system dev bootstrap
+- `superai-skills voice-learn "<sample>"`: Learn human voice tone, rhythm, and sentence cadence
+- `superai-skills voice-audit "<draft>"`: Audit message draft against AI fluff/buzzwords and character caps
+- `superai-skills voice-rag`: Retrieve learned human few-shots for prompt grounding
 
 ## Collaborators
 
