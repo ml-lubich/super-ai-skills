@@ -1,0 +1,14 @@
+[project]
+name = "own-chrome"
+version = "0.2.0"
+description = "Drive the already-open Google Chrome. LinkedIn queries included."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+own-chrome = "own_chrome.cli:main"
+li = "own_chrome.linkedin:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

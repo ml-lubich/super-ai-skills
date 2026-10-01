@@ -1,0 +1,42 @@
+[submodule "packages/linkedin-mcp"]
+	path = packages/linkedin-mcp
+	url = https://github.com/ml-lubich/linkedin-mcp.git
+[submodule "packages/imail-mcp"]
+	path = packages/imail-mcp
+	url = https://github.com/ml-lubich/imail-mcp.git
+[submodule "packages/whatsapp-mcp"]
+	path = packages/whatsapp-mcp
+	url = https://github.com/ml-lubich/whatsapp-mcp.git
+[submodule "packages/imsg-mcp"]
+	path = packages/imsg-mcp
+	url = https://github.com/ml-lubich/imsg-mcp.git
+[submodule "packages/jenkins-mcp"]
+	path = packages/jenkins-mcp
+	url = https://github.com/ml-lubich/jenkins-mcp.git
+[submodule "packages/inotes-mcp"]
+	path = packages/inotes-mcp
+	url = https://github.com/ml-lubich/inotes-mcp.git
+[submodule "packages/vercel-mcp"]
+	path = packages/vercel-mcp
+	url = https://github.com/ml-lubich/vercel-mcp.git
+[submodule "packages/railway-mcp"]
+	path = packages/railway-mcp
+	url = https://github.com/ml-lubich/railway-mcp.git
+[submodule "packages/own-chrome"]
+	path = packages/own-chrome
+	url = https://github.com/ml-lubich/own-chrome.git
+[submodule "packages/humanizer"]
+	path = packages/humanizer
+	url = https://github.com/ml-lubich/humanizer.git
+[submodule "packages/claude-tiers"]
+	path = packages/claude-tiers
+	url = https://github.com/ml-lubich/claude-tiers.git
+[submodule "packages/callgen"]
+	path = packages/callgen
+	url = https://github.com/ml-lubich/callgen.git
+[submodule "packages/bitbucket-cli"]
+	path = packages/bitbucket-cli
+	url = https://github.com/ml-lubich/bitbucket-cli.git
+[submodule "packages/like-fable"]
+	path = packages/like-fable
+	url = https://github.com/ml-lubich/like-fable.git
