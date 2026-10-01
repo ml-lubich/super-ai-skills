@@ -23,17 +23,16 @@ The unified agent engineering hub and meta-repository integrating Misha's person
 
 ## Quickstart & Dev Setup (macOS / Linux)
 
-Run the one-line bootstrap to install all developer dependencies (`brew` / `apt`, `gh`, `git`, `uv`, Python, submodules, and agent skills):
+Pure Python OOP setup without shell scripts:
 
 ```bash
 git clone --recurse-submodules https://github.com/ml-lubich/super-ai-skills.git
 cd super-ai-skills
-./bootstrap-dev.sh
-```
 
-Or run via the CLI:
-```bash
+# Install via pip or uv
 pip install -e .
+
+# Run the Python-native environment bootstrap
 super-skills setup-dev
 ```
 

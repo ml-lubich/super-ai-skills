@@ -91,12 +91,10 @@ def install_skills(target):
 
 @cli.command("setup-dev")
 def setup_dev():
-    """Run full developer environment bootstrap (brew/apt, gh, uv, tools, skills)."""
-    script_path = os.path.join(ROOT_DIR, "bootstrap-dev.sh")
-    if not os.path.exists(script_path):
-        console.print("[red]bootstrap-dev.sh not found![/red]")
-        return
-    subprocess.run([script_path])
+    """Run full developer environment bootstrap (Python-native EnvironmentManager)."""
+    from super_ai_skills.env import EnvironmentManager
+    mgr = EnvironmentManager()
+    mgr.bootstrap()
 
 @cli.command("doctor")
 def doctor():
