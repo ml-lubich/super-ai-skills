@@ -41,7 +41,7 @@ class EnvironmentManager:
     def setup_macos(self, tools: Optional[List[str]] = None) -> None:
         """Provision developer tools on macOS using Homebrew via Python."""
         if tools is None:
-            tools = ["gh", "git", "jq", "uv", "node", "ffmpeg"]
+            tools = ["gh", "git", "jq", "uv", "node", "bun", "ffmpeg"]
 
         if not self.check_command("brew"):
             console.print("[yellow]Homebrew not found. Please install Homebrew: https://brew.sh[/yellow]")
@@ -69,6 +69,13 @@ class EnvironmentManager:
         elif self.check_command("pacman"):
             console.print("[cyan]Installing packages via pacman...[/cyan]")
             subprocess.run(["sudo", "pacman", "-Sy", "--noconfirm", "git", "curl", "jq"], check=False)
+
+        if not self.check_command("bun"):
+            console.print("[cyan]Installing bun...[/cyan]")
+            try:
+                subprocess.run(["sh", "-c", "curl -fsSL https://bun.sh/install | bash"], check=False)
+            except Exception as e:
+                console.print(f"[yellow]Could not auto-install bun: {e}[/yellow]")
 
     def bootstrap(self) -> None:
         """Run full cross-platform environment setup."""
