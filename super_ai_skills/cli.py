@@ -89,6 +89,15 @@ def install_skills(target):
 
     console.print("\n[bold green]✓ Skills successfully installed across targets![/bold green]")
 
+@cli.command("setup-dev")
+def setup_dev():
+    """Run full developer environment bootstrap (brew/apt, gh, uv, tools, skills)."""
+    script_path = os.path.join(ROOT_DIR, "bootstrap-dev.sh")
+    if not os.path.exists(script_path):
+        console.print("[red]bootstrap-dev.sh not found![/red]")
+        return
+    subprocess.run([script_path])
+
 @cli.command("doctor")
 def doctor():
     """Run health check and environment diagnostics."""

@@ -21,18 +21,29 @@ The unified agent engineering hub and meta-repository integrating Misha's person
   - `packages/bitbucket-cli`: Minimal Bitbucket Data Center/Cloud CLI (`bb`)
   - `packages/like-fable`: Agent behavior & collaboration prompt library
 
-## Installation & Setup
+## Quickstart & Dev Setup (macOS / Linux)
 
-Clone with submodules:
+Run the one-line bootstrap to install all developer dependencies (`brew` / `apt`, `gh`, `git`, `uv`, Python, submodules, and agent skills):
+
 ```bash
 git clone --recurse-submodules https://github.com/ml-lubich/super-ai-skills.git
 cd super-ai-skills
+./bootstrap-dev.sh
 ```
 
-Update submodules to latest:
+Or run via the CLI:
 ```bash
-git submodule update --remote --merge
+pip install -e .
+super-skills setup-dev
 ```
+
+## CLI Usage
+
+- `super-skills doctor`: Environment diagnostic and health check
+- `super-skills list-skills`: List all 35+ available agent skills
+- `super-skills list-mcp`: List all 14 MCP server submodules
+- `super-skills install-skills --target all`: Link skills into Claude, Cursor, Codex, and Gemini
+- `super-skills setup-dev`: Re-run full system dev bootstrap
 
 ## Collaborators
 
