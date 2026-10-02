@@ -88,21 +88,12 @@ email, links and pitch; the rules below stay the same.
 - Threads the recruiter already closed ("okay thanks", "same to you" after a no) get nothing.
 
 ### How to run it
-Chrome with the LinkedIn session: CDP port 9222, profile `~/.config/linkedin-refer/chrome`
-(`own-chrome status --json --filter linkedin`). `~/dev/linkedin-refer/copy.js` no longer exists.
-1. `python3 ~/.claude/skills/linkedin-outreach/scan.py <scratch>/cands.json` loads the whole
-   inbox (it loads lazily), opens every thread whose preview isn't "You:" and keeps the ones where
-   the last speaker isn't Misha, the referee isn't mentioned, and nothing is excluded. InMail previews
-   show the subject line, not the last message, so the preview alone can't tell you who replied last.
-2. Read each candidate and sort it: job, sales, or Misha's own. Write one personalized message per job.
-3. Send: open the thread **by its URL** (`location.href=...`). Clicking list items can quietly
-   leave the old thread open. Then re-read it and check it's the right person (`<First>’s profile`, or
-   `Peter I.’s profile` style labels) and that the referee is still not mentioned. Insert the text with
-   `document.execCommand('insertText')` into `.msg-form__contenteditable`, then click
-   `button.msg-form__send-button`.
-4. Attach the resume right after the text, as its own message with no second text. Upload it into
-   `input.msg-form__attachment-upload-input[accept*=".pdf"]` (`agent-browser --cdp 9222 upload ...`),
-   wait until `.msg-form` shows `resume_joseph_heupler.pdf` and the send button is enabled, then send.
-   Skip any thread that already has `resume_joseph_heupler.pdf` or `Joseph_Heupler_Resume.pdf` (older runs used that name).
-5. Verify: re-open each thread and check the referee's email and the resume file each appear exactly once. Report
-   sent / skipped with reasons.
+Use the CLI; the full command flow lives in the `linkedin` skill (`~/.claude/skills/linkedin/SKILL.md`).
+Never hand-write browser code for this.
+1. `li login` (if signed out), then `li scan` -> compact JSON of candidates `{name,url,unread,text,fit}`.
+2. Read each candidate and sort it: job, sales, or Misha's own. Write one personalized message per job
+   into `queue.json` (`name`, `profile_url` or `thread_url`, `company`, `role`, `body`).
+3. `li referral queue queue.json` (dry run), then `li referral queue queue.json --confirm`: opens each
+   thread by URL, sends the body then `resume_joseph_heupler.pdf`, verifies both landed once, and writes
+   the ledger (`~/.config/joe-referral/ledger.json`). Report sent / skipped with reasons.
+(`li` can be shadowed by own-chrome's `li` in a venv; `linkedin` is the same CLI and always ours.)

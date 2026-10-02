@@ -43,8 +43,24 @@ def addr(sender: str) -> str:
     return (m.group(1) if m else sender).strip().lower()
 
 
+def sent_recipients(account: str) -> set[str]:
+    """Every address we already wrote to (Sent Mail), so a stale ledger can't cause a repeat send."""
+    out = mail.run_as(f'''tell application "Mail"
+set out to ""
+set mb to mailbox "[Gmail]/Sent Mail" of account "{account}"
+repeat with i from 1 to (count of messages of mb)
+ if i > 400 then exit repeat
+ repeat with x in to recipients of message i of mb
+  set out to out & address of x & linefeed
+ end repeat
+end repeat
+return out
+end tell''')
+    return {a.strip().lower() for a in out.splitlines() if a.strip()}
+
+
 def scan(account: str, limit: int) -> None:
-    done = contacted(ledger())
+    done = contacted(ledger()) | sent_recipients(account)
     out = []
     for m in mail.list_messages(account=account, limit=limit):
         a = addr(m["sender"])

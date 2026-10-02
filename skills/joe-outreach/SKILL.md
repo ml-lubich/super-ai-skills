@@ -51,14 +51,7 @@ Verify MX records or SMTP availability before sending, or prioritize verified re
 4. `$PY refer.py send ~/.config/joe-referral/queue.json`. It sends from michaelle.lubich@gmail.com, CCs Joe,
    attaches his resume, logs each send to the ledger as it goes, and empties the queue.
 
-**Outbound (people hiring on LinkedIn):** use LinkedIn Jobs, not post search. Open
-`/jobs/search/?keywords=AI%20engineer&location=San%20Francisco%20Bay%20Area&f_TPR=r259200`, then open each
-`/jobs/view/<id>/` and read "Meet the hiring team" (name, headline, profile). Get the domain from the
-company's `/about/` Website field and check it with `dig MX`. Port 25 is blocked on this Mac, so
-addresses can't be confirmed over SMTP. For small or founder-run companies use `first@domain`. For bigger
-ones, look up the published format (LeadIQ / RocketReach search). Examples: Nuro = `flast`,
-Mindlance = `firstl`. Send ONE best-guess address per person, never every variant. Queue and send
-the same way as inbound, with subject "referral for your <role> role".
+**No outbound job scanning.** Joe is only referred to people who already messaged Misha (email or LinkedIn inbox). Do not search job boards or LinkedIn Jobs, and do not collect job IDs or hiring-team names.
 
 **After sending:** check `[Gmail]/Sent Mail` for the subjects, and look for bounces in the inbox
 (`Undeliverable` / `Delivery Status Notification`). Bounced addresses stay in the ledger so they are never retried.
