@@ -6,7 +6,7 @@ from click.testing import CliRunner
 from super_ai_skills import init as init_mod
 from super_ai_skills.cli import cli
 
-STEP_FNS = ["_setup_dev", "_bb", "_plugins", "_skills", "_brain", "_doctor"]
+STEP_FNS = ["_setup_dev", "_bb", "_plugins", "_tools", "_skills", "_brain", "_doctor"]
 
 
 @pytest.fixture
@@ -59,7 +59,7 @@ def test_dry_run_prints_every_step_and_runs_no_subprocess(monkeypatch):
     monkeypatch.setattr(subprocess, "Popen", boom)
     out = CliRunner().invoke(cli, ["init", "--dry-run", "--bitbucket"])
     assert out.exit_code == 0, out.output
-    for word in ("setup-dev", "bb", "plugins", "skills", "brain", "doctor"):
+    for word in ("setup-dev", "bb", "plugins", "tools", "skills", "brain", "doctor"):
         assert word in out.output
 
 

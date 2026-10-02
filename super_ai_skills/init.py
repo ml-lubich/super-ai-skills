@@ -73,6 +73,13 @@ def _plugins(tier: str = "default") -> Result:
     return Result("plugins", "fail" if bad else "ok", "; ".join(str(getattr(r, "detail", r)) for r in bad))
 
 
+def _tools() -> Result:
+    from super_ai_skills.tools import install_tools
+    res = install_tools("default", False, out=console.print)
+    bad = [n for n, st in res.items() if st == "failed"]
+    return Result("tools", "fail" if bad else "ok", ", ".join(bad))
+
+
 def _skills() -> Result:
     from super_ai_skills.cli import install_skills
     install_skills.callback("all")
@@ -98,6 +105,7 @@ def run_init(dry_run: bool, bitbucket: Optional[bool], with_brain_daemon: bool, 
         steps.append(("bb", _bb))
     if not skip_plugins:
         steps.append(("plugins", _plugins))
+    steps.append(("tools", _tools))
     steps += [("skills", _skills), ("brain", lambda: _brain(with_brain_daemon)), ("doctor", _doctor)]
 
     results = []

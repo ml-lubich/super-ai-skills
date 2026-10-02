@@ -95,7 +95,7 @@ Skills are also on [skills.sh](https://skills.sh/ml-lubich/superai-skills): `npx
 
 ## Popular add-ons
 
-`setup-dev` runs the default tier after the base bootstrap; `install-tools` runs it on its own.
+`init` and `setup-dev` run the default tier; `install-tools` runs it on its own.
 Already-installed tools are skipped, and `--dry-run` runs nothing. Defined in [`tools.toml`](tools.toml).
 
 | Tier | Tools |
