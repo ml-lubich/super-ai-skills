@@ -19,6 +19,7 @@ dependencies = [
     "pyyaml>=6.0",
     "httpx>=0.25.0",
     "mcp>=1.0.0",
+    "tomli>=2.0; python_version < '3.11'",
 ]
 
 [project.optional-dependencies]
@@ -34,3 +35,9 @@ super-ai-skills = "super_ai_skills.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["super_ai_skills"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

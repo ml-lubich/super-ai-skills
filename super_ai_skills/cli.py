@@ -90,11 +90,44 @@ def install_skills(target):
     console.print("\n[bold green]✓ Skills successfully installed across targets![/bold green]")
 
 @cli.command("setup-dev")
-def setup_dev():
-    """Run full developer environment bootstrap (Python-native EnvironmentManager)."""
+@click.option("--dry-run", "-n", is_flag=True, help="Run nothing; only show what the default add-ons would do")
+def setup_dev(dry_run):
+    """Run full developer environment bootstrap, then the default add-on tools."""
     from super_ai_skills.env import EnvironmentManager
-    mgr = EnvironmentManager()
-    mgr.bootstrap()
+    if dry_run:
+        console.print("[dim]dry-run: base bootstrap skipped[/dim]")
+    else:
+        EnvironmentManager().bootstrap()
+    _run_install_tools("default", dry_run)
+
+
+def _run_install_tools(tier, dry_run):
+    from super_ai_skills.tools import install_tools
+    results = install_tools(tier=tier, dry_run=dry_run, out=console.print)
+    for name, status in results.items():
+        console.print(f"  {name}: {status}")
+
+
+@cli.command("install-tools")
+@click.option("--tier", type=click.Choice(["default", "all"]), default="default", help="default = safe add-ons; all adds optional (print-only for secrets/curl|bash)")
+@click.option("--dry-run", "-n", is_flag=True, help="Run nothing, only print")
+def install_tools_cmd(tier, dry_run):
+    """Install popular CLI/MCP add-ons from tools.toml (skips what is already installed)."""
+    _run_install_tools(tier, dry_run)
+
+
+@cli.command("list-tools")
+def list_tools():
+    """List add-on tools (tools.toml) and whether each binary is present."""
+    from super_ai_skills.tools import load_tools
+    table = Table(title="Popular Add-ons")
+    for col in ("Name", "Kind", "Tier", "Present", "Note / URL"):
+        table.add_column(col)
+    for t in load_tools():
+        check = t.get("check")
+        present = "-" if not check else ("yes" if shutil.which(check) else "no")
+        table.add_row(t["name"], t["kind"], t.get("tier", "reference"), present, t.get("url") or t.get("note", ""))
+    console.print(table)
 
 @cli.command("doctor")
 def doctor():
@@ -106,6 +139,11 @@ def doctor():
     pkgs_count = len(os.listdir(PACKAGES_DIR)) if os.path.exists(PACKAGES_DIR) else 0
     console.print(f"[bold]Skills:[/bold] {skills_count}")
     console.print(f"[bold]Packages:[/bold] {pkgs_count}")
+    from super_ai_skills.tools import load_tools
+    for t in load_tools():
+        if t.get("check"):
+            mark = "[green]✓[/green]" if shutil.which(t["check"]) else "[dim]-[/dim]"
+            console.print(f"  {mark} {t['name']} ({t['check']})")
     console.print("[bold green]✓ Health check passed.[/bold green]")
 
 @cli.command("init")

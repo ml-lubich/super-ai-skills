@@ -1,0 +1,166 @@
+# Popular non-plugin add-ons. Verified against GitHub (see README "Popular add-ons").
+# install = argv list. auto = false means install-tools only PRINTS the command
+# (secrets, Docker, curl|bash, GUI, on-demand). needs = binary required to run it.
+# check = binary probed with shutil.which ("" = nothing to probe).
+
+[[tool]]
+name = "rtk"
+kind = "cli"
+check = "rtk"
+needs = "brew"
+install = ["brew", "install", "rtk"]
+tier = "default"
+note = "Token-saving CLI output proxy"
+
+[[tool]]
+name = "headroom"
+kind = "cli"
+check = "headroom"
+needs = "uv"
+install = ["uv", "tool", "install", "--python", "3.13", "headroom-ai[all]"]
+tier = "default"
+note = "Context compression proxy"
+
+[[tool]]
+name = "serena"
+kind = "cli"
+check = "serena"
+needs = "uv"
+install = ["uv", "tool", "install", "-p", "3.13", "serena-agent"]
+tier = "default"
+note = "Semantic code tools; register as MCP per its docs (not via marketplace)"
+
+[[tool]]
+name = "codegraph"
+kind = "cli"
+check = "codegraph"
+needs = "npm"
+install = ["npm", "i", "-g", "@colbymchenry/codegraph"]
+tier = "default"
+note = "Code knowledge graph; run `codegraph` once to wire MCP, `codegraph init` per project"
+
+[[tool]]
+name = "graphify"
+kind = "cli"
+check = "graphify"
+needs = "uv"
+install = ["uv", "tool", "install", "graphifyy"]
+tier = "default"
+note = "PyPI name has a double y"
+
+[[tool]]
+name = "repomix"
+kind = "cli"
+check = "repomix"
+needs = "brew"
+install = ["brew", "install", "repomix"]
+tier = "default"
+note = "Pack a repo into one prompt-friendly file"
+
+[[tool]]
+name = "claude-code-router"
+kind = "cli"
+check = "ccr"
+needs = "npm"
+install = ["npm", "install", "-g", "@musistudio/claude-code-router"]
+tier = "default"
+note = "Route Claude Code requests to other model providers"
+
+[[tool]]
+name = "playwright-mcp"
+kind = "mcp"
+check = ""
+needs = "claude"
+install = ["claude", "mcp", "add", "playwright", "--", "npx", "@playwright/mcp@latest"]
+tier = "default"
+note = "Browser automation MCP"
+
+[[tool]]
+name = "github-mcp"
+kind = "mcp"
+check = ""
+auto = false
+install = ["claude", "mcp", "add", "github", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN=$GITHUB_PAT", "--", "docker", "run", "-i", "--rm", "-e", "GITHUB_PERSONAL_ACCESS_TOKEN", "ghcr.io/github/github-mcp-server"]
+tier = "optional"
+note = "Needs Docker and a GitHub personal access token"
+
+[[tool]]
+name = "firecrawl-mcp"
+kind = "mcp"
+check = ""
+auto = false
+install = ["claude", "mcp", "add", "firecrawl", "-e", "FIRECRAWL_API_KEY=fc-...", "--", "npx", "-y", "firecrawl-mcp"]
+tier = "optional"
+note = "Needs FIRECRAWL_API_KEY (SaaS)"
+
+[[tool]]
+name = "cc-switch"
+kind = "cli"
+check = ""
+needs = "brew"
+install = ["brew", "install", "--cask", "cc-switch"]
+tier = "optional"
+note = "Desktop GUI app for switching Claude Code providers"
+
+[[tool]]
+name = "multica"
+kind = "cli"
+check = "multica"
+auto = false
+install = ["sh", "-c", "curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash -s -- --with-server"]
+tier = "optional"
+note = "Self-hosted agent team platform; curl|bash, review before running"
+
+[[tool]]
+name = "gstack"
+kind = "skill"
+check = ""
+auto = false
+install = ["sh", "-c", "git clone --single-branch --depth 1 https://github.com/garrytan/gstack.git ~/.claude/skills/gstack && cd ~/.claude/skills/gstack && ./setup"]
+tier = "optional"
+note = "Needs Bun; setup builds a browser and touches CLAUDE.md"
+
+[[tool]]
+name = "vibe-kanban"
+kind = "cli"
+check = ""
+auto = false
+install = ["npx", "vibe-kanban"]
+tier = "optional"
+note = "Run on demand"
+
+[[tool]]
+name = "awesome-claude-skills"
+kind = "reference"
+url = "https://github.com/ComposioHQ/awesome-claude-skills"
+note = "Curated skills list"
+
+[[tool]]
+name = "awesome-mcp-servers"
+kind = "reference"
+url = "https://github.com/punkpeye/awesome-mcp-servers"
+note = "Curated MCP server list"
+
+[[tool]]
+name = "system-prompts-and-models-of-ai-tools"
+kind = "reference"
+url = "https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools"
+note = "Collected AI tool system prompts"
+
+[[tool]]
+name = "claude-code-best-practice"
+kind = "reference"
+url = "https://github.com/shanraisshan/claude-code-best-practice"
+note = "Claude Code usage guide"
+
+[[tool]]
+name = "learn-claude-code"
+kind = "reference"
+url = "https://github.com/shareAI-lab/learn-claude-code"
+note = "Tutorial lessons s01..s12"
+
+[[tool]]
+name = "Archon"
+kind = "reference"
+url = "https://github.com/coleam00/Archon"
+note = "Heavy workflow engine; link only"

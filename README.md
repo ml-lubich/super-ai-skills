@@ -23,7 +23,7 @@
 
 ```
 superai-skills/
-├── skills/          # 35+ agent skills → symlinked into Claude/Cursor/Codex/Gemini
+├── skills/          # 36 agent skills → symlinked into Claude/Cursor/Codex/Gemini
 ├── packages/        # 15 MCP server submodules
 │   ├── linkedin-mcp      LinkedIn MCP server & CLI (Voyager API + CDP Chrome)
 │   ├── imail-mcp         macOS Mail.app CLI + MCP server
@@ -67,9 +67,11 @@ Skills are also on [skills.sh](https://skills.sh/ml-lubich/superai-skills): `npx
 |---------|-------------|
 | `superai-skills setup-dev` | Full workstation bootstrap (brew/apt tools + Python + AI CLIs) |
 | `superai-skills doctor` | Health check — all tools, CLIs, and skill links |
-| `superai-skills list-skills` | List all 35+ available agent skills |
+| `superai-skills list-skills` | List all 36 available agent skills |
 | `superai-skills list-mcp` | List all 15 MCP server submodules |
 | `superai-skills install-skills --target all` | Symlink skills into Claude, Cursor, Codex, and Gemini |
+| `superai-skills install-tools [--tier default\|all] [--dry-run]` | Install popular CLI/MCP add-ons from `tools.toml` |
+| `superai-skills list-tools` | List add-ons and whether each is installed |
 
 ---
 
@@ -88,6 +90,28 @@ Skills are also on [skills.sh](https://skills.sh/ml-lubich/superai-skills): `npx
 `httpie` · `rich-cli`
 
 **Python:** 3.13 via `uv python install 3.13`
+
+---
+
+## Popular add-ons
+
+`setup-dev` runs the default tier after the base bootstrap; `install-tools` runs it on its own.
+Already-installed tools are skipped, and `--dry-run` runs nothing. Defined in [`tools.toml`](tools.toml).
+
+| Tier | Tools |
+|------|-------|
+| default (safe, no accounts) | `rtk` `headroom` `serena` `codegraph` `graphify` `repomix` `claude-code-router` `playwright-mcp` |
+| optional (`--tier all`) | `cc-switch` (brew cask) |
+| print-only (never auto-run: secret, Docker, GUI, `curl \| bash`, on demand) | `github-mcp` `firecrawl-mcp` `multica` `gstack` `vibe-kanban` |
+
+Reference libraries (links only): [awesome-claude-skills](https://github.com/ComposioHQ/awesome-claude-skills) ·
+[awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) ·
+[system-prompts-and-models-of-ai-tools](https://github.com/x1xhlol/system-prompts-and-models-of-ai-tools) ·
+[claude-code-best-practice](https://github.com/shanraisshan/claude-code-best-practice) ·
+[learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) ·
+[Archon](https://github.com/coleam00/Archon) (heavy workflow engine)
+
+ECC (everything-claude-code) is intentionally excluded: oh-my-claudecode replaces it.
 
 ---
 
