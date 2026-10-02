@@ -146,15 +146,31 @@ def doctor():
             console.print(f"  {mark} {t['name']} ({t['check']})")
     console.print("[bold green]✓ Health check passed.[/bold green]")
 
+def _keys(ctx, param, value):
+    from super_ai_skills.init import STEP_KEYS
+    keys = [k.strip() for k in (value or "").split(",") if k.strip()]
+    bad = [k for k in keys if k not in STEP_KEYS]
+    if bad:
+        raise click.BadParameter(f"unknown step(s) {', '.join(bad)}; valid: {', '.join(STEP_KEYS)}")
+    return keys
+
+
 @cli.command("init")
+@click.option("--yes", "-y", is_flag=True, help="Accept every recommended step, skip optional ones.")
+@click.option("--no-input", is_flag=True, help="Like --yes and never prompt (CI).")
+@click.option("--only", callback=_keys, help="Comma-separated step keys to run (e.g. ohmyzsh,skills).")
+@click.option("--skip", callback=_keys, help="Comma-separated step keys to skip.")
 @click.option("--dry-run", "-n", is_flag=True, help="Print every step without running anything.")
 @click.option("--bitbucket/--no-bitbucket", default=None, help="Force or skip the Bitbucket CLI (default: auto-detect).")
-@click.option("--with-brain-daemon", is_flag=True, help="Also install the brain launchd daemon (macOS).")
-@click.option("--skip-plugins", is_flag=True, help="Skip Claude plugin installation.")
-def init(dry_run, bitbucket, with_brain_daemon, skip_plugins):
-    """One-shot setup: dev tools, AI CLIs, plugins, skills, brain, doctor."""
+@click.option("--with-brain-daemon", is_flag=True, help="Also install the brain daemon (macOS); on by default for that step.")
+@click.option("--skip-plugins", is_flag=True, help="Same as --skip plugins.")
+def init(yes, no_input, only, skip, dry_run, bitbucket, with_brain_daemon, skip_plugins):
+    """Guided setup wizard: shell, terminal, AI CLIs, plugins, tools, skills, doctor.
+
+    Steps: brew, bb, ai-clis, ohmyzsh, powerlevel10k, zsh-plugins, iterm2, plugins, tools, skills, brain, doctor.
+    """
     from super_ai_skills.init import run_init
-    results = run_init(dry_run, bitbucket, with_brain_daemon, skip_plugins)
+    results = run_init(dry_run, bitbucket, with_brain_daemon, skip_plugins, yes, no_input, only, skip)
     if any(r.status == "fail" for r in results):
         sys.exit(1)
 

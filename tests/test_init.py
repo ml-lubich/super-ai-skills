@@ -6,17 +6,19 @@ from click.testing import CliRunner
 from super_ai_skills import init as init_mod
 from super_ai_skills.cli import cli
 
-STEP_FNS = ["_setup_dev", "_bb", "_plugins", "_tools", "_skills", "_brain", "_doctor"]
+STEP_FNS = ["_brew", "_bb", "_ai_clis", "_p10k", "_iterm2", "_plugins", "_tools", "_skills", "_brain", "_doctor"]
 
 
 @pytest.fixture
 def stub_steps(monkeypatch):
+    """Replace every real runner; build_steps resolves them at call time, so patch the module."""
     calls = []
     for name in STEP_FNS:
         monkeypatch.setattr(
             init_mod, name,
-            lambda *a, _n=name, **k: calls.append(_n) or init_mod.Result(_n, "ok"),
+            lambda dry_run=False, *a, _n=name, **k: calls.append(_n) or init_mod.Result(_n, "ok"),
         )
+    monkeypatch.setattr(init_mod, "_call", lambda m, f, d: calls.append(f) or init_mod.Result(f, "ok"))
     monkeypatch.setattr(init_mod, "detect_bitbucket_here", lambda: False)
     return calls
 
@@ -57,36 +59,43 @@ def test_dry_run_prints_every_step_and_runs_no_subprocess(monkeypatch):
         raise AssertionError("subprocess used in dry-run")
     monkeypatch.setattr(subprocess, "run", boom)
     monkeypatch.setattr(subprocess, "Popen", boom)
+    monkeypatch.setattr(init_mod, "_call", lambda m, f, d: init_mod.Result(f, "dry-run"))
     out = CliRunner().invoke(cli, ["init", "--dry-run", "--bitbucket"])
     assert out.exit_code == 0, out.output
-    for word in ("setup-dev", "bb", "plugins", "tools", "skills", "brain", "doctor"):
+    for word in ("brew", "bb", "ai-clis", "plugins", "tools", "skills", "brain", "doctor"):
         assert word in out.output
 
 
-def test_short_n_is_dry_run(monkeypatch):
-    monkeypatch.setattr(subprocess, "run", lambda *a, **k: 1 / 0)
-    assert CliRunner().invoke(cli, ["init", "-n", "--no-bitbucket"]).exit_code == 0
+def test_short_flags(monkeypatch, stub_steps):
+    assert CliRunner().invoke(cli, ["init", "-n", "-y", "--no-bitbucket"]).exit_code == 0
 
 
 def test_no_bitbucket_skips_bb(stub_steps):
-    out = CliRunner().invoke(cli, ["init", "--no-bitbucket"])
+    out = CliRunner().invoke(cli, ["init", "-y", "--no-bitbucket"])
     assert out.exit_code == 0
-    assert "_bb" not in stub_steps and "_setup_dev" in stub_steps
+    assert "_bb" not in stub_steps and "_brew" in stub_steps
 
 
 def test_bitbucket_flag_runs_bb(stub_steps):
-    assert CliRunner().invoke(cli, ["init", "--bitbucket"]).exit_code == 0
+    assert CliRunner().invoke(cli, ["init", "-y", "--bitbucket"]).exit_code == 0
     assert "_bb" in stub_steps
 
 
 def test_skip_plugins(stub_steps):
-    CliRunner().invoke(cli, ["init", "--skip-plugins"])
+    CliRunner().invoke(cli, ["init", "-y", "--skip-plugins"])
     assert "_plugins" not in stub_steps
+
+
+def test_brain_is_optional_unless_flag(stub_steps):
+    CliRunner().invoke(cli, ["init", "-y"])
+    assert "_brain" not in stub_steps
+    CliRunner().invoke(cli, ["init", "-y", "--with-brain-daemon"])
+    assert "_brain" in stub_steps
 
 
 def test_step_failure_exit_1_but_continues(stub_steps, monkeypatch):
     monkeypatch.setattr(init_mod, "_plugins", lambda *a, **k: init_mod.Result("plugins", "fail", "nope"))
-    out = CliRunner().invoke(cli, ["init"])
+    out = CliRunner().invoke(cli, ["init", "-y"])
     assert out.exit_code == 1
     assert "_doctor" in stub_steps
 
@@ -95,5 +104,16 @@ def test_step_exception_is_a_failure(stub_steps, monkeypatch):
     def raises(*a, **k):
         raise RuntimeError("kaput")
     monkeypatch.setattr(init_mod, "_skills", raises)
-    out = CliRunner().invoke(cli, ["init"])
+    out = CliRunner().invoke(cli, ["init", "-y"])
     assert out.exit_code == 1 and "kaput" in out.output
+
+
+@pytest.mark.parametrize("statuses,dry,want", [
+    (["ok", "skip"], False, "ok"),
+    (["skip", "already present"], False, "skip"),
+    (["ok", "failed"], False, "fail"),
+    ([], False, "ok"),
+    (["ok"], True, "dry-run"),
+])
+def test_aggregate(statuses, dry, want):
+    assert init_mod._aggregate("x", statuses, dry).status == want

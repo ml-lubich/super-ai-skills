@@ -52,7 +52,35 @@ superai-skills/
 curl -fsSL https://raw.githubusercontent.com/ml-lubich/superai-skills/main/install.sh | sh
 ```
 
-Clones to `~/dev/superai-skills` (override with `SUPERAI_HOME`), installs the CLI, then runs `superai-skills init`. Re-running is safe (pulls and re-inits). Pass flags after `sh -s --`, e.g. `| sh -s -- --dry-run` (prints the steps only), `--bitbucket` / `--no-bitbucket`, `--with-brain-daemon`, `--skip-plugins`.
+One command: it clones to `~/dev/superai-skills` (override with `SUPERAI_HOME`), installs the CLI, then launches the guided wizard, `superai-skills init`. Like oh-my-zsh or powerlevel10k's setup, every step is explained first, marked **(recommended)** or **(optional)**, and you can answer `n` to any of them. Your login shell is never changed. Re-running is safe: whatever is already present is skipped.
+
+| Step | Key | What it does |
+|------|-----|--------------|
+| Dev tools | `brew` | uv, Homebrew/apt packages (git, gh, jq, ripgrep, fzf, ...), Python |
+| Bitbucket CLI | `bb` | `bb`, only when Bitbucket is detected (or `--bitbucket`) |
+| AI CLIs | `ai-clis` | claude, gemini, codex |
+| oh-my-zsh | `ohmyzsh` | the zsh framework |
+| powerlevel10k | `powerlevel10k` | prompt theme + Nerd Font (starship is left off so the two do not fight) |
+| zsh plugins | `zsh-plugins` | autosuggestions + syntax-highlighting |
+| iTerm2 | `iterm2` | app + profile (macOS only; skipped on Linux) |
+| Claude plugins | `plugins` | default plugin set from `plugins.toml` |
+| Add-ons | `tools` | default tools from `tools.toml` |
+| Skills | `skills` | links skills into Claude, Cursor, Codex, Gemini |
+| Brain daemon | `brain` | **optional**, default no |
+| Health check | `doctor` | always last, no prompt |
+
+Flags (pass them after `sh -s --` when piping, or directly to `superai-skills init`):
+
+```bash
+superai-skills init                     # interactive wizard
+superai-skills init --yes               # accept every recommended step, skip optional ones
+superai-skills init --no-input          # same as --yes, never prompts (CI)
+superai-skills init --only ohmyzsh,skills   # just these steps
+superai-skills init --skip iterm2,brain     # everything except these
+superai-skills init --dry-run           # show the plan, run nothing
+```
+
+Also: `--bitbucket/--no-bitbucket`, `--with-brain-daemon`, `--skip-plugins`. After it finishes, restart your shell, run `p10k configure`, and open iTerm2.
 
 For fully autonomous agent-driven setup, paste the prompt from:
 👉 [`prompts/AGENT_SETUP_PROMPT.md`](prompts/AGENT_SETUP_PROMPT.md)

@@ -32,7 +32,9 @@ def env(tmp_path):
         "HOME": str(tmp_path / "home"),
         "SUPERAI_HOME": str(tmp_path / "home" / "dev" / "superai-skills"),
         "STUB_LOG": str(log),
+        "SUPERAI_TTY": str(tmp_path / "fake-tty"),
     }
+    (tmp_path / "fake-tty").write_text("")
     return e, log
 
 
@@ -81,6 +83,21 @@ def test_call_order_fresh_then_idempotent(env):
     assert any("pull" in x for x in c)
     assert any("submodule update" in x for x in c)
     assert c[-1] == "superai-skills init"
+
+
+def test_no_tty_runs_init_no_input(env):
+    e, log = env
+    e["SUPERAI_TTY"] = "/nonexistent/tty"
+    r = run(e, "--only", "skills")
+    assert r.returncode == 0, r.stderr
+    assert calls(log)[-1] == "superai-skills init --only skills --no-input"
+
+
+def test_dry_run_passes_flags_in_plan(env):
+    e, log = env
+    r = run(e, "--dry-run", "--yes")
+    assert "superai-skills init --dry-run --yes" in r.stdout
+    assert calls(log) == []
 
 
 def test_no_personal_strings():

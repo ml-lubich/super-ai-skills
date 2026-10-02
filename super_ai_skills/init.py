@@ -1,23 +1,21 @@
 """`superai-skills init`: one idempotent command that sets up the whole workstation."""
 
+import importlib
 import os
+import shutil
 import subprocess
-from dataclasses import dataclass
+import sys
 from pathlib import Path
-from typing import Callable, List, Mapping, Optional
+from typing import Callable, Dict, Iterable, List, Mapping, Optional
 
 from rich.console import Console
+
+from super_ai_skills.plugins import Result
+from super_ai_skills.wizard import Step, run_wizard
 
 console = Console()
 
 ROOT_DIR = Path(__file__).resolve().parent.parent
-
-
-@dataclass
-class Result:
-    name: str
-    status: str  # ok | skip | fail
-    detail: str = ""
 
 
 # --- Bitbucket detection ---------------------------------------------------
@@ -54,72 +52,160 @@ def detect_bitbucket_here() -> bool:
     return detect_bitbucket(remotes, os.environ, (home / ".config" / "bb").exists())
 
 
-# --- Steps -------------------------------------------------------------------
-def _setup_dev() -> Result:
+# --- Step runners (each takes dry_run, returns Result) -------------------------
+def _aggregate(name: str, statuses: Iterable[str], dry_run: bool, detail: str = "") -> Result:
+    """ok/failed/already-present roll-up. statuses use plugins.Result words or tools.py words."""
+    sts = list(statuses)
+    if dry_run:
+        return Result(name, "dry-run", detail)
+    if any(x in ("fail", "failed") for x in sts):
+        return Result(name, "fail", detail)
+    if sts and all(x in ("skip", "already present") for x in sts):
+        return Result(name, "skip", "already present")
+    return Result(name, "ok", detail)
+
+
+def _brew(dry_run: bool) -> Result:
+    if dry_run:
+        return Result("brew", "dry-run", "would install uv, brew/apt dev tools, Python, uv tools")
     from super_ai_skills.env import EnvironmentManager
-    EnvironmentManager().bootstrap()
-    return Result("setup-dev", "ok")
+    em = EnvironmentManager()
+    em.ensure_uv()
+    if em.is_mac:
+        em.setup_macos()
+    elif em.is_linux:
+        em.setup_linux()
+    em.setup_python()
+    em.setup_uv_tools()
+    failed = [n for n, st in em._summary.items() if st == "failed"]
+    return Result("brew", "fail" if failed else "ok", ", ".join(failed))
 
 
-def _bb() -> Result:
+def _ai_clis(dry_run: bool) -> Result:
+    from super_ai_skills.env import EnvironmentManager
+    if all(shutil.which(c) for c, _ in EnvironmentManager.AI_CLIS):
+        return Result("ai-clis", "skip", "already present")
+    if dry_run:
+        return Result("ai-clis", "dry-run", "would install claude, gemini, codex")
+    em = EnvironmentManager()
+    em.setup_ai_clis()
+    failed = [n for n, st in em._summary.items() if st == "failed"]
+    return Result("ai-clis", "fail" if failed else "ok", ", ".join(failed))
+
+
+def _bb(dry_run: bool) -> Result:
+    if shutil.which("bb"):
+        return Result("bb", "skip", "already present")
+    if dry_run:
+        return Result("bb", "dry-run", "would uv tool install packages/bitbucket-cli")
     subprocess.run(["uv", "tool", "install", str(ROOT_DIR / "packages" / "bitbucket-cli")], check=True)
     return Result("bb", "ok")
 
 
-def _plugins(tier: str = "default") -> Result:
-    from super_ai_skills import plugins  # WP3
-    results = plugins.install(tier, False)
-    bad = [r for r in results if getattr(r, "status", "ok") == "fail"]
-    return Result("plugins", "fail" if bad else "ok", "; ".join(str(getattr(r, "detail", r)) for r in bad))
+def _call(module: str, fn: str, dry_run: bool) -> Result:
+    # Lazy: shell_setup / iterm are owned by other modules and imported only when the step runs.
+    return getattr(importlib.import_module(f"super_ai_skills.{module}"), fn)(dry_run=dry_run)
 
 
-def _tools() -> Result:
+STARSHIP_NOTE = "starship stays off in .zshrc: powerlevel10k owns the prompt"
+
+
+def _p10k(dry_run: bool) -> Result:
+    r = _call("shell_setup", "install_powerlevel10k", dry_run)
+    if r.status in ("ok", "skip", "dry-run"):
+        r = Result(r.name, r.status, f"{r.detail}; {STARSHIP_NOTE}".lstrip("; "))
+    return r
+
+
+def _iterm2(dry_run: bool) -> Result:
+    if sys.platform != "darwin":
+        return Result("iterm2", "unsupported", "iTerm2 is macOS-only; skipped on this platform")
+    app = _call("iterm", "install_iterm2", dry_run)
+    prof = _call("iterm", "apply_iterm_profile", dry_run)
+    detail = "; ".join(d for d in (app.detail, prof.detail) if d)
+    return _aggregate("iterm2", [app.status, prof.status], dry_run, detail)
+
+
+def _plugins(dry_run: bool) -> Result:
+    from super_ai_skills import plugins
+    res = plugins.install_plugins("default", dry_run)
+    bad = "; ".join(f"{r.name}: {r.detail}" for r in res if r.status == "fail")
+    return _aggregate("plugins", [r.status for r in res], dry_run, bad)
+
+
+def _tools(dry_run: bool) -> Result:
     from super_ai_skills.tools import install_tools
-    res = install_tools("default", False, out=console.print)
-    bad = [n for n, st in res.items() if st == "failed"]
-    return Result("tools", "fail" if bad else "ok", ", ".join(bad))
+    res = install_tools("default", dry_run, out=console.print)
+    bad = ", ".join(n for n, st in res.items() if st == "failed")
+    return _aggregate("tools", res.values(), dry_run, bad)
 
 
-def _skills() -> Result:
+def _skills(dry_run: bool) -> Result:
+    if dry_run:
+        return Result("skills", "dry-run", "would link skills into claude, cursor, codex, gemini")
     from super_ai_skills.cli import install_skills
     install_skills.callback("all")
     return Result("skills", "ok")
 
 
-def _brain(daemon: bool = False) -> Result:
-    from super_ai_skills import brain_setup  # WP5
-    r = brain_setup.install(False, daemon)
+def _brain(dry_run: bool, daemon: bool = False) -> Result:
+    try:
+        from super_ai_skills import brain_setup
+    except ImportError:
+        return Result("brain", "unsupported", "brain_setup is not part of this checkout")
+    r = brain_setup.install(dry_run, daemon)
     return Result("brain", getattr(r, "status", "ok"), str(getattr(r, "detail", "")))
 
 
-def _doctor() -> Result:
+def _doctor(dry_run: bool) -> Result:
+    if dry_run:
+        return Result("doctor", "dry-run", "would run health check")
     from super_ai_skills.cli import doctor
     doctor.callback()
     return Result("doctor", "ok")
 
 
-def run_init(dry_run: bool, bitbucket: Optional[bool], with_brain_daemon: bool, skip_plugins: bool) -> List[Result]:
-    use_bb = resolve_bitbucket(bitbucket, detect_bitbucket_here() if bitbucket is None else False)
-    steps: List[tuple] = [("setup-dev", _setup_dev)]
-    if use_bb:
-        steps.append(("bb", _bb))
-    if not skip_plugins:
-        steps.append(("plugins", _plugins))
-    steps.append(("tools", _tools))
-    steps += [("skills", _skills), ("brain", lambda: _brain(with_brain_daemon)), ("doctor", _doctor)]
+STEP_KEYS = ["brew", "bb", "ai-clis", "ohmyzsh", "powerlevel10k", "zsh-plugins",
+             "iterm2", "plugins", "tools", "skills", "brain", "doctor"]
 
-    results = []
-    for name, fn in steps:
-        if dry_run:
-            res = Result(name, "skip", "dry-run: would run")
-        else:
-            try:
-                res = fn()
-            except Exception as e:  # a failed step must not abort the rest; exit code reports it
-                res = Result(name, "fail", f"{type(e).__name__}: {e}")
-        color = {"ok": "green", "skip": "yellow", "fail": "red"}.get(res.status, "white")
-        console.print(f"[{color}]{res.status:<4}[/{color}] {name} {res.detail}".rstrip(), markup=True)
-        results.append(res)
-    if not use_bb:
-        console.print("[yellow]skip[/yellow] bb (no Bitbucket detected; force with --bitbucket)")
-    return results
+
+def build_steps(with_brain_daemon: bool = False) -> List[Step]:
+    steps = [
+        Step("brew", "Dev tools", "Installs uv, Homebrew/apt packages (git, gh, jq, ripgrep, fzf...) and Python.",
+             True, True, _brew),
+        Step("bb", "Bitbucket CLI", "Installs the `bb` Bitbucket command-line client (skipped unless detected/forced).",
+             True, True, _bb),
+        Step("ai-clis", "AI CLIs", "Installs the claude, gemini and codex command-line agents.",
+             True, True, _ai_clis),
+        Step("ohmyzsh", "oh-my-zsh", "Installs the oh-my-zsh zsh framework. Your login shell is not changed.",
+             True, True, lambda d: _call("shell_setup", "install_ohmyzsh", d)),
+        Step("powerlevel10k", "powerlevel10k prompt",
+             "Installs the powerlevel10k theme plus the MesloLGS Nerd Font it needs.",
+             True, True, _p10k),
+        Step("zsh-plugins", "zsh plugins", "Adds zsh-autosuggestions and zsh-syntax-highlighting.",
+             True, True, lambda d: _call("shell_setup", "install_zsh_plugins", d)),
+        Step("iterm2", "iTerm2 + profile", "Installs iTerm2 (macOS) and a profile using the Nerd Font.",
+             True, True, _iterm2),
+        Step("plugins", "Claude Code plugins", "Installs the default set of Claude Code plugins.",
+             True, True, _plugins),
+        Step("tools", "CLI/MCP add-ons", "Installs the default add-ons from tools.toml (skips what you have).",
+             True, True, _tools),
+        Step("skills", "Agent skills", "Links the bundled skills into Claude, Cursor, Codex and Gemini.",
+             True, True, _skills),
+        Step("brain", "Brain daemon", "Optional personal knowledge/inbox agent; most people do not need it.",
+             with_brain_daemon, with_brain_daemon, lambda d: _brain(d, with_brain_daemon)),
+        Step("doctor", "Health check", "Verifies what is installed.", True, True, _doctor, ask=False),
+    ]
+    return steps
+
+
+def run_init(dry_run: bool = False, bitbucket: Optional[bool] = None, with_brain_daemon: bool = False,
+             skip_plugins: bool = False, yes: bool = False, no_input: bool = False,
+             only: Optional[List[str]] = None, skip: Optional[List[str]] = None,
+             **wizard_kw) -> List[Result]:
+    use_bb = resolve_bitbucket(bitbucket, detect_bitbucket_here() if bitbucket is None else False)
+    skip = list(skip or []) + (["plugins"] if skip_plugins else [])
+    if not use_bb and "bb" not in (only or []):
+        skip.append("bb")
+    return run_wizard(build_steps(with_brain_daemon), yes=yes, no_input=no_input,
+                      only=only, skip=skip, dry_run=dry_run, **wizard_kw)

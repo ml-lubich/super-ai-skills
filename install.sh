@@ -1,10 +1,13 @@
 #!/bin/sh
 # superai-skills one-click installer. Usage: curl -fsSL <raw install.sh url> | sh [-s -- init-flags]
-# Env: SUPERAI_HOME (clone dir). --dry-run prints the steps and runs nothing; other flags go to `init`.
+# Env: SUPERAI_HOME (clone dir). --dry-run prints the steps and runs nothing; other flags go to the
+# `init` wizard (-y/--yes, --only, --skip, ...). The wizard prompts via the terminal even under `curl | sh`;
+# with no terminal at all it runs with --no-input (recommended steps only).
 set -eu
 
 REPO="https://github.com/ml-lubich/superai-skills.git"
 DIR="${SUPERAI_HOME:-$HOME/dev/superai-skills}"
+TTY="${SUPERAI_TTY:-/dev/tty}"
 DRY=0
 for a in "$@"; do [ "$a" = "--dry-run" ] || [ "$a" = "-n" ] && DRY=1; done
 
@@ -34,4 +37,13 @@ else
   cd "$DIR"
 fi
 step uv tool install --editable --force .
-step superai-skills init "$@"
+if [ "$DRY" = 1 ]; then
+  step superai-skills init "$@"
+elif [ -t 0 ]; then
+  superai-skills init "$@"
+elif [ -r "$TTY" ] && ( : <"$TTY" ) 2>/dev/null; then
+  superai-skills init "$@" <"$TTY"
+else
+  echo "==> no terminal available: running init with --no-input"
+  superai-skills init "$@" --no-input
+fi
