@@ -46,39 +46,13 @@ superai-skills/
 
 ---
 
-## Quickstart — New Collaborator Setup
+## Quickstart
 
 ```bash
-# 1. Clone with submodules
-git clone --recurse-submodules https://github.com/ml-lubich/superai-skills.git ~/dev/superai-skills
-cd ~/dev/superai-skills
-
-# 2. Install uv (fast Python package manager)
-curl -LsSf https://astral.sh/uv/install.sh | sh
-
-# 3. Install Python 3.13
-uv python install 3.13
-
-# 4. Install the CLI
-uv tool install --editable .
-
-# 5. Bootstrap the full workstation
-superai-skills setup-dev
-
-# 6. Install AI CLIs
-bun add -g @anthropic-ai/claude-code
-bun add -g @google-deepmind/gemini-cli
-bun add -g @openai/codex
-
-# 7. Link all skills into your AI clients
-superai-skills install-skills --target all
-
-# Or install the same skills from the public directory
-npx skills add ml-lubich/superai-skills
-
-# 8. Health check
-superai-skills doctor
+curl -fsSL https://raw.githubusercontent.com/ml-lubich/superai-skills/main/install.sh | sh
 ```
+
+Clones to `~/dev/superai-skills` (override with `SUPERAI_HOME`), installs the CLI, then runs `superai-skills init`. Re-running is safe (pulls and re-inits). Pass flags after `sh -s --`, e.g. `| sh -s -- --dry-run` (prints the steps only), `--bitbucket` / `--no-bitbucket`, `--with-brain-daemon`, `--skip-plugins`.
 
 For fully autonomous agent-driven setup, paste the prompt from:
 👉 [`prompts/AGENT_SETUP_PROMPT.md`](prompts/AGENT_SETUP_PROMPT.md)

@@ -14,7 +14,7 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SKILLS_DIR = os.path.join(ROOT_DIR, "skills")
 PACKAGES_DIR = os.path.join(ROOT_DIR, "packages")
 
-@click.group()
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
 def cli():
     """Universal Super AI Skills & MCP Suite for macOS, Linux, and Cloud."""
     pass
@@ -107,6 +107,18 @@ def doctor():
     console.print(f"[bold]Skills:[/bold] {skills_count}")
     console.print(f"[bold]Packages:[/bold] {pkgs_count}")
     console.print("[bold green]✓ Health check passed.[/bold green]")
+
+@cli.command("init")
+@click.option("--dry-run", "-n", is_flag=True, help="Print every step without running anything.")
+@click.option("--bitbucket/--no-bitbucket", default=None, help="Force or skip the Bitbucket CLI (default: auto-detect).")
+@click.option("--with-brain-daemon", is_flag=True, help="Also install the brain launchd daemon (macOS).")
+@click.option("--skip-plugins", is_flag=True, help="Skip Claude plugin installation.")
+def init(dry_run, bitbucket, with_brain_daemon, skip_plugins):
+    """One-shot setup: dev tools, AI CLIs, plugins, skills, brain, doctor."""
+    from super_ai_skills.init import run_init
+    results = run_init(dry_run, bitbucket, with_brain_daemon, skip_plugins)
+    if any(r.status == "fail" for r in results):
+        sys.exit(1)
 
 def main():
     cli()

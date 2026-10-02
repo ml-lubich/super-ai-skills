@@ -1,0 +1,71 @@
+# Claude Code plugins installed by `superai-skills init`.
+# tier: default = installed always; optional = needs own accounts (--plugins all).
+
+[[plugin]]
+id = "oh-my-claudecode@omc"
+repo = "Yeachan-Heo/oh-my-claudecode"
+tier = "default"
+
+[[plugin]]
+id = "superpowers@superpowers-marketplace"
+repo = "obra/superpowers-marketplace"
+tier = "default"
+
+[[plugin]]
+id = "ponytail@ponytail"
+repo = "DietrichGebert/ponytail"
+tier = "default"
+
+[[plugin]]
+id = "context7@context7-marketplace"
+repo = "upstash/context7"
+tier = "default"
+
+[[plugin]]
+id = "chrome-devtools-mcp@chrome-devtools-plugins"
+repo = "ChromeDevTools/chrome-devtools-mcp"
+tier = "default"
+
+[[plugin]]
+id = "claude-mem@thedotmack"
+repo = "thedotmack/claude-mem"
+tier = "default"
+
+[[plugin]]
+id = "frontend-design@claude-plugins-official"
+repo = "anthropics/claude-plugins-official"
+tier = "default"
+
+[[plugin]]
+id = "vercel@claude-plugins-official"
+repo = "anthropics/claude-plugins-official"
+tier = "optional"
+
+[[plugin]]
+id = "sentry@claude-plugins-official"
+repo = "anthropics/claude-plugins-official"
+tier = "optional"
+
+[[plugin]]
+id = "sentry-cli@claude-plugins-official"
+repo = "anthropics/claude-plugins-official"
+tier = "optional"
+
+[[plugin]]
+id = "slack@claude-plugins-official"
+repo = "anthropics/claude-plugins-official"
+tier = "optional"
+
+[[plugin]]
+id = "claude-tiers@claude-tiers"
+repo = "ml-lubich/claude-tiers"
+tier = "optional"
+
+# Never installed (personal / niche / disabled). A test pins that none appear above.
+[excluded]
+ids = [
+  "nateherk-design@scroll-craft",
+  "swift-lsp@claude-plugins-official",
+  "ecc@ecc",
+]
+repos = ["ml-lubich/scroll-craft"]
